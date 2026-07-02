@@ -13,15 +13,6 @@
   "monorepo": true,
   "root": "apps/exam-system-backend",
   "projects": {
-    "exam-system-backend": {
-      "type": "application",
-      "root": "apps/exam-system-backend",
-      "entryFile": "main",
-      "sourceRoot": "apps/exam-system-backend/src",
-      "compilerOptions": {
-        "tsConfigPath": "apps/exam-system-backend/tsconfig.app.json"
-      }
-    },
     "analyse": {
       "type": "application",
       "root": "apps/analyse",
@@ -47,6 +38,24 @@
       "sourceRoot": "apps/exam/src",
       "compilerOptions": {
         "tsConfigPath": "apps/exam/tsconfig.app.json"
+      }
+    },
+    "exam-system-backend": {
+      "type": "application",
+      "root": "apps/exam-system-backend",
+      "entryFile": "main",
+      "sourceRoot": "apps/exam-system-backend/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/exam-system-backend/tsconfig.app.json"
+      }
+    },
+    "redis": {
+      "type": "library",
+      "root": "libs/redis",
+      "entryFile": "index",
+      "sourceRoot": "libs/redis/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/redis/tsconfig.lib.json"
       }
     },
     "user": {
