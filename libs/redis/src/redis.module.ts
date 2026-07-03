@@ -1,5 +1,5 @@
-import { Module } from '@nestjs/common';
-import { RedisService } from './redis.service';
+import { Module } from "@nestjs/common";
+import { RedisService } from "./redis.service";
 import { createClient } from "redis";
 
 @Module({
@@ -10,10 +10,10 @@ import { createClient } from "redis";
       useFactory: async () => {
         const client = createClient({
           socket: {
-            host: 'localhost',
+            host: "localhost",
             port: 6379
           },
-        })
+        });
         await client.connect();
         return client;
       }
