@@ -5,5 +5,4 @@ export class RegisterUserDto {
 
   email: string;
 
-  captcha: string;
 }
