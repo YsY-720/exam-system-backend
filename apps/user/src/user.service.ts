@@ -2,6 +2,8 @@ import { HttpException, HttpStatus, Inject, Injectable, Logger } from "@nestjs/c
 import { RegisterUserDto } from "./dto/register-user.dto";
 import { PrismaService } from "@app/prisma";
 import { RedisService } from "@app/redis";
+import { EmailService } from "@app/email";
+import { getCaptchaEmailHtml } from "../utils";
 
 @Injectable()
 export class UserService {
@@ -10,6 +12,9 @@ export class UserService {
 
   @Inject(RedisService)
   private redis: RedisService;
+
+  @Inject(EmailService)
+  private email: EmailService;
 
   private logger = new Logger();
 
@@ -53,4 +58,19 @@ export class UserService {
       return null;
     }
   }
+
+  async captcha(address: string) {
+    const code = Math.random().toString().slice(2, 8);
+    await this.redis.set(`captcha_${ address }`, code, 5 * 60);
+    await this.email.sendEmail({
+      to: address,
+      subject: "注册验证码",
+      html: getCaptchaEmailHtml(code, {
+        title: "注册验证码",
+        description: "欢迎注册考试系统，请完成邮箱验证",
+      })
+    });
+    return "发送成功";
+  }
+
 }
