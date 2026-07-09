@@ -11,8 +11,8 @@ export class EmailService {
       port: 587,
       secure: false,
       auth: {
-        user: "2285683024@qq.com",
-        pass: "thlugvelvaqaeadb"
+        user: "xxxxxx@qq.com",
+        pass: "XXXX"
       }
     });
   }
