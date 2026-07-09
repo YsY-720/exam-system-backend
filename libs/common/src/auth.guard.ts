@@ -2,7 +2,7 @@ import { CanActivate, ExecutionContext, Inject, Injectable, UnauthorizedExceptio
 import { Observable } from "rxjs";
 import { Reflector } from "@nestjs/core";
 import { JwtService } from "@nestjs/jwt";
-import { type Request } from "express";
+import { type Request, type Response } from "express";
 
 interface JwtUserData {
   userId: number;
@@ -27,6 +27,7 @@ export class AuthGuard implements CanActivate {
     context: ExecutionContext,
   ): boolean | Promise<boolean> | Observable<boolean> {
     const request: Request = context.switchToHttp().getRequest();
+    const response: Response = context.switchToHttp().getResponse();
 
     const requireLogin = this.reflector.getAllAndOverride("require-login", [
       context.getClass(),
@@ -47,6 +48,12 @@ export class AuthGuard implements CanActivate {
         userId: data.userId,
         username: data.username,
       };
+
+      response.header("token", this.jwtService.sign({
+        userId: data.userId,
+        username: data.username,
+      }, { expiresIn: "7d" }));
+
       return true;
     } catch (error) {
       throw new UnauthorizedException("token 失效，请重新登录");

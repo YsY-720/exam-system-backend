@@ -7,6 +7,7 @@ import { getCaptchaEmailHtml } from "../utils";
 import { CaptchaType } from "./dto/captcha.dto";
 import { LoginUserDto } from "./dto/login-user.dto";
 import { JwtService } from "@nestjs/jwt";
+import { UpdateUserPasswordDto } from "./dto/update-user-password.dto";
 
 @Injectable()
 export class UserService {
@@ -31,6 +32,8 @@ export class UserService {
    * @param type 验证码类型
    */
   async captcha(address: string, type: CaptchaType) {
+    console.log(address);
+    console.log(type);
     const code = Math.random().toString().slice(2, 8);
     const emailOptions = this.getCaptchaEmailOptions(type);
 
@@ -53,7 +56,7 @@ export class UserService {
         title: "注册验证码",
         description: "欢迎注册考试系统，请完成邮箱验证",
       },
-      resetPassword: {
+      'update_password': {
         title: "修改密码验证码",
         description: "你正在修改密码，请完成邮箱验证",
       }
@@ -104,6 +107,10 @@ export class UserService {
     }
   }
 
+  /**
+   * 用户登录
+   * @param loginUser
+   */
   async login(loginUser: LoginUserDto) {
     const foundUser = await this.prisma.user.findUnique({
       where: {
@@ -126,4 +133,38 @@ export class UserService {
     };
   }
 
+  /**
+   * 修改密码
+   * @param passwordDto
+   */
+  async updatePassword(passwordDto: UpdateUserPasswordDto) {
+    const foundUser = await this.prisma.user.findUnique({
+      where: {
+        username: passwordDto.username
+      }
+    });
+
+    if (!foundUser) throw new HttpException("用户不存在", HttpStatus.BAD_REQUEST);
+
+    const captcha = await this.redis.get(`captcha_update_password_${ passwordDto.email }`);
+
+    if (!captcha) throw new HttpException("验证码失效", HttpStatus.BAD_REQUEST);
+
+    if (passwordDto.captcha !== captcha) throw new HttpException("验证码不正确", HttpStatus.BAD_REQUEST);
+
+    foundUser.password = passwordDto.password;
+
+    try {
+      await this.prisma.user.update({
+        where: {
+          id: foundUser.id
+        },
+        data: foundUser
+      });
+      return "密码修改成功";
+    } catch (error) {
+      this.logger.error(error, UserService);
+      return "密码修改失败";
+    }
+  }
 }
